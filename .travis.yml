@@ -1,0 +1,31 @@
+language: c
+dist: trusty
+sudo: false
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+
+before_install:
+  - export CC=gcc-7
+
+addons:
+  apt:
+    update: true
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-7
+      - libncurses5-dev
+      - zlib1g-dev
+      - libssl-dev
+      - libbz2-dev
+      - libgdbm-dev
+      - libsqlite3-dev
+      - liblzma-dev
+      - libreadline-dev
+      - autoconf
+      - automake
+      - git-core
+
+script:
+  - bin/build.sh
+
