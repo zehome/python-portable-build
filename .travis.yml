@@ -25,5 +25,5 @@ addons:
       - git-core
 
 script:
-  - bin/build.sh
+  - bash bin/build.sh
 
