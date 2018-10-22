@@ -72,8 +72,8 @@ echo "Update PIP and install virtualenv"
 python-${VERSION}/bin/python -m pip install -U pip
 
 echo "Patch sheebang"
-for f in $(grep -rl '^#!'"$HOME"'/python-'"${VERSION}"'/bin/python' $HOME/python-${VERSION}/bin/*); do
-    sed -i 's,^#!'"$HOME"'/python-'"$VERSION"'/bin/python.*,#!/usr/bin/perl -e$_=$ARGV[0];exec(s/\\w+$/python/r\,$_\,@ARGV[1..$#ARGV]),' $f
+for f in $(grep -rl '^#!'"$ROOT"'/python-'"${VERSION}"'/bin/python' $ROOT/python-${VERSION}/bin/*); do
+    sed -i 's,^#!'"$ROOT"'/python-'"$VERSION"'/bin/python.*,#!/usr/bin/perl -e$_=$ARGV[0];exec(s/\\w+$/python/r\,$_\,@ARGV[1..$#ARGV]),' $f
     echo "[+] patched $f"
 done
 
