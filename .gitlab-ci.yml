@@ -6,6 +6,7 @@ stages: [build, deploy]
     CC: gcc-7
   script:
     - VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${MATCH}" -quiet)
+    - bin/openssl.sh
     - bin/build.sh "${VERSION}"
   artifacts:
     paths:

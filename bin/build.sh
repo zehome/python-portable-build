@@ -2,6 +2,8 @@
 
 set -e
 
+. $(dirname $0)/common.sh
+
 if [ ! -z "$1" ]; then
     VERSION=$1
 else
@@ -12,14 +14,11 @@ VERSION_MINOR=$(echo $VERSION | cut -f3 -d.)
 [ -z "$VERSION_MD5SUM" ] && PYTHON_MD5SUM=""
 
 ROOT=$(pwd)
-CPUS=$(cat /proc/cpuinfo | grep MHz | wc -l)
-
-#apt-get -qq update
-#apt-get -qqy install libncurses5-dev zlib1g-dev libssl-dev libbz2-dev libgdbm-dev libsqlite3-dev liblzma-dev libreadline-dev autoconf automake git-core
 
 # Build patchelf from git master
 # fixes bug increasing size of binary by 20 MiB
 # https://github.com/NixOS/patchelf/commit/c4deb5e9e1ce9c98a48e0d5bb37d87739b8cfee4
+if [ ! -d patchelf ]; then
 (
     git clone https://github.com/NixOS/patchelf.git
     cd patchelf
@@ -27,9 +26,10 @@ CPUS=$(cat /proc/cpuinfo | grep MHz | wc -l)
     ./configure
     make -j $CPUS
 )
+fi
 
 echo "Build python ${VERSION}"
-wget --quiet https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tar.xz
+fetch_source Python-${VERSION}.tar.xz https://www.python.org/ftp/python/${VERSION}
 if [ -z "$PYTHON_MD5SUM" ]; then
     echo "Bypass hash check"
 else
@@ -83,4 +83,4 @@ done
 
 echo "Build archive"
 glibc_version=$(dpkg -s libc6|grep Version|awk '{print $2}'|cut -f1 -d-)
-tar cJf python-${VERSION}-linux-$(uname -m)-glibc-${glibc_version}.tar.xz python-${VERSION}/
+tar -cJf python-${VERSION}-linux-$(uname -m)-glibc-${glibc_version}.tar.xz python-${VERSION}/
