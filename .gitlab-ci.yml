@@ -5,8 +5,8 @@ stages: [build, deploy]
   variables:
     CC: gcc-7
   script:
-    - export VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${MATCH}" -quiet)
-    - bin/build.sh
+    - VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${MATCH}" -quiet)
+    - bin/build.sh "${VERSION}"
   artifacts:
     paths:
       - python-*.tar.xz

@@ -2,11 +2,14 @@
 
 set -e
 
-[ -z "$VERSION" ] && VERSION=3.6.6
+if [ ! -z "$1" ]; then
+    VERSION=$1
+else
+    [ -z "$VERSION" ] && VERSION=3.6.6
+fi
 VERSION_MAJOR=$(echo $VERSION | cut -f1,2 -d.)
 VERSION_MINOR=$(echo $VERSION | cut -f3 -d.)
 [ -z "$VERSION_MD5SUM" ] && PYTHON_MD5SUM=""
-VERSION=${VERSION_MAJOR}.${VERSION_MINOR}
 
 ROOT=$(pwd)
 CPUS=$(cat /proc/cpuinfo | grep MHz | wc -l)
@@ -25,7 +28,8 @@ CPUS=$(cat /proc/cpuinfo | grep MHz | wc -l)
     make -j $CPUS
 )
 
-wget https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tar.xz
+echo "Build python ${VERSION}"
+wget --quiet https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tar.xz
 if [ -z "$PYTHON_MD5SUM" ]; then
     echo "Bypass hash check"
 else
