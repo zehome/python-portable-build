@@ -1,0 +1,8 @@
+image: clarisys/gitlabci:trusty
+build:
+  variables:
+    CC: gcc-7
+  script:
+    - export CC=${CC}
+    - bash bin/build.sh
+
