@@ -57,12 +57,13 @@ patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python$
 
 echo "Copy system libraries"
 syslibs=$(find $ROOT/python-${VERSION} -name '*.so' | \
-    xargs ldd | grep x86_64-linux | \
-    grep -Ev 'libc|libm|libdl|libutil|libpthread|libnsl|libssl' | \
-    grep '=>'|awk '{print $3'}|sort -u)
+    xargs ldd | grep '=>' | \
+    grep -Ev 'libc|libm|libdl|libutil|libpthread|libnsl|linux-vdso|python' | \
+    awk '{print $3'}|sort -u)
 for lib in ${syslibs}; do
     cp -v ${lib} $ROOT/python-${VERSION}/lib
 done
+strip $ROOT/python-${VERSION}/lib/*.so*
 
 echo "Remove tests idle and tkinter"
 for d in tkinter sqlite3/test idlelib test; do
