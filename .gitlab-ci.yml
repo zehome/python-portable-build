@@ -4,6 +4,7 @@ stages: [build, deploy]
   stage: build
   variables:
     CC: gcc-7
+    LD_LIBRARY_PATH: /usr/local/lib
   script:
     - VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${MATCH}" -quiet)
     - bin/openssl.sh
