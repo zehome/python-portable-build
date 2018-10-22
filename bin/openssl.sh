@@ -2,18 +2,21 @@
 
 set -e
 
-OPENSSL_ROOT=openssl-1.0.2o
-OPENSSL_HASH=ec3f5c9714ba0fd45cb4e087301eb1336c317e0d20b575a125050470e8089e4d
-OPENSSL_DOWNLOAD_URL="https://www.openssl.org/source"
+ROOT=$(dirname $0)
 
-. $(dirname $0)/common.sh
+. $ROOT/common.sh
 
-fetch_source $OPENSSL_ROOT.tar.gz $OPENSSL_DOWNLOAD_URL
-check_sha256sum $OPENSSL_ROOT.tar.gz $OPENSSL_HASH
-tar -xzf $OPENSSL_ROOT.tar.gz
+LIBRESSL_VERSION=$($ROOT/checkupdate.sh -owner libressl-portable -repository portable -quiet)
+
+LIBRESSL_ROOT=libressl-${LIBRESSL_VERSION}
+LIBRESSL_DOWNLOAD_URL="https://ftp.openbsd.org/pub/OpenBSD/LibreSSL"
+
+
+fetch_source $LIBRESSL_ROOT.tar.gz $LIBRESSL_DOWNLOAD_URL
+tar -xzf $LIBRESSL_ROOT.tar.gz
 (
-    cd $OPENSSL_ROOT
-    ./config shared
+    cd $LIBRESSL_ROOT
+    ./config shared -fPIC > /dev/null
     make -j $CPUS
     make install
 )
