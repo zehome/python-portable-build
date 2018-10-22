@@ -1,10 +1,21 @@
 image: clarisys/gitlabci:trusty
-build:
+stages: [build, deploy]
+.build:
+  stage: build
   variables:
     CC: gcc-7
   script:
-    - export CC=${CC}
-    - bash bin/build.sh
+    - export VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${MATCH}" -quiet)
+    - bin/build.sh
   artifacts:
     paths:
       - python-*.tar.xz
+
+build:36:
+  extends: .build
+  variables:
+    MATCH: ">=3.6.0,<3.7"
+build:37:
+  extends: .build
+  variables:
+    MATCH: ">=3.7.0,<3.8"
