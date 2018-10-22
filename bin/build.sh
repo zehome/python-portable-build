@@ -72,11 +72,11 @@ echo "Update PIP and install virtualenv"
 python-${VERSION}/bin/python -m pip install -U pip
 
 echo "Patch sheebang"
-for f in $(grep -rl '^#!'"$HOME"'/python-'"${VERSION}"'/bin/python' $HOME/python-${VERSION}/bin); do
+for f in $(grep -rl '^#!'"$HOME"'/python-'"${VERSION}"'/bin/python' $HOME/python-${VERSION}/bin/*); do
     sed -i 's,^#!'"$HOME"'/python-'"$VERSION"'/bin/python.*,#!/usr/bin/perl -e$_=$ARGV[0];exec(s/\\w+$/python/r\,$_\,@ARGV[1..$#ARGV]),' $f
     echo "[+] patched $f"
 done
 
 echo "Build archive"
-libc_version=$(dpkg -s libc6|grep Version|awk '{print $2}'|cut -f1 -d-)
-tar cJf python-${VERSION}-linux-$(uname -m)-$(libc_version).tar.xz python-${VERSION}/
+glibc_version=$(dpkg -s libc6|grep Version|awk '{print $2}'|cut -f1 -d-)
+tar cJf python-${VERSION}-linux-$(uname -m)-glibc-${glibc_version}.tar.xz python-${VERSION}/
