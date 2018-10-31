@@ -16,6 +16,7 @@ fetch_source $LIBRESSL_ROOT.tar.gz $LIBRESSL_DOWNLOAD_URL
 tar -xzf $LIBRESSL_ROOT.tar.gz
 (
     cd $LIBRESSL_ROOT
+    export CFLAGS=-fPIC
     ./config shared -fPIC > /dev/null
     make -j $CPUS
     make install

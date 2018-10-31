@@ -36,9 +36,11 @@ else
     echo "$PYTHON_MD5SUM *Python-${VERSION}.tar.xz" > Python-${VERSION}.md5sum
     md5sum --quiet -c Python-${VERSION}.md5sum
 fi
+export OPENSSL_ROOT=/usr/local
 tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
+    patch -p1 < ../patches/python-3.6.7.openssl.static.diff
     ./configure --enable-shared --enable-optimizations --with-lto --prefix $ROOT/python-${VERSION}/
     make -j $CPUS
     make altinstall
