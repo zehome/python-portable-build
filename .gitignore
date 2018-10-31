@@ -1,5 +1,6 @@
 *.swp
 *.tar.xz
 Python-*
-python-*
+python-*.tar*
+python-*/
 githubchecker
