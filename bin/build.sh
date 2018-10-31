@@ -4,6 +4,8 @@ set -e
 
 . $(dirname $0)/common.sh
 
+[ -z "$PGO_ENABLED" ] && PGO_ENABLED=1
+
 if [ ! -z "$1" ]; then
     VERSION=$1
 else
@@ -36,12 +38,16 @@ else
     echo "$PYTHON_MD5SUM *Python-${VERSION}.tar.xz" > Python-${VERSION}.md5sum
     md5sum --quiet -c Python-${VERSION}.md5sum
 fi
-export OPENSSL_ROOT=/usr/local
+export PKG_CONFIG_PATH=/usr/local/ssl/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=/usr/local/ssl/lib:$LD_LIBRARY_PATH
 tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
-    patch -p1 < ../patches/python-3.6.7.openssl.static.diff
-    ./configure --enable-shared --enable-optimizations --with-lto --prefix $ROOT/python-${VERSION}/
+    if [ "$PGO_ENABLED" = "1" ]; then
+        ./configure --enable-optimizations --with-lto --prefix $ROOT/python-${VERSION}/
+    else
+        ./configure --prefix $ROOT/python-${VERSION}/
+    fi
     make -j $CPUS
     make altinstall
 )
@@ -53,19 +59,24 @@ echo "Create python and python3 link"
     ln -s python${VERSION_MAJOR} python3
 )
 
-echo "Patchelf (set rpath to $ORIGIN/../lib)"
-patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}
-patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}m
-
 echo "Copy system libraries"
-syslibs=$(find $ROOT/python-${VERSION} -name '*.so' | \
+syslibs=$(find $ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload -name '*.so*' | \
     xargs ldd | grep '=>' | \
-    grep -Ev 'libc|libm|libdl|libutil|libpthread|libnsl|linux-vdso|python' | \
+    grep -Ev 'libc\.|libm|libdl|libutil|libpthread|libnsl|linux-vdso' | \
     awk '{print $3'}|sort -u)
 for lib in ${syslibs}; do
     cp -v ${lib} $ROOT/python-${VERSION}/lib
 done
 strip $ROOT/python-${VERSION}/lib/*.so*
+
+echo "Patchelf (set rpath to $ORIGIN/../lib)"
+patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}
+patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}m
+
+echo "Patchelf (dynlib)"
+for lib in python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload/*.so; do
+    patchelf/src/patchelf --set-rpath '$ORIGIN/../../' $lib
+done
 
 echo "Remove tests idle and tkinter"
 for d in tkinter sqlite3/test idlelib test; do
@@ -86,4 +97,10 @@ done
 
 echo "Build archive"
 glibc_version=$(dpkg -s libc6|grep Version|awk '{print $2}'|cut -f1 -d-)
-tar -cJf python-${VERSION}-linux-$(uname -m)-glibc-${glibc_version}.tar.xz python-${VERSION}/
+libressl_version=$(/usr/local/ssl/bin/openssl version -v|awk '{print $2}')
+if [ "$PGO_ENABLED" = "1" ]; then
+    OPT=pgo-
+else
+    OPT=""
+fi
+tar -cJf python-${OPT}${VERSION}-linux-$(uname -m)-glibc-${glibc_version}-libressl-${libressl_version}.tar.xz python-${VERSION}/

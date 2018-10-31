@@ -4,7 +4,7 @@ stages: [build, deploy]
   stage: build
   variables:
     CC: gcc-7
-    LD_LIBRARY_PATH: /usr/local/lib
+    PGO_ENABLED: 1
   before_script:
     - eval $(ssh-agent -s)
     - ssh-add <(echo "$SSH_PRIVATE_KEY")
