@@ -5,10 +5,17 @@ stages: [build, deploy]
   variables:
     CC: gcc-7
     LD_LIBRARY_PATH: /usr/local/lib
+  before_script:
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    - SSH_PRIVATE_KEY=""
+    - mkdir -p ~/.ssh
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   script:
     - VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${MATCH}" -quiet)
     - bin/openssl.sh
     - bin/build.sh "${VERSION}"
+    - scp python-*.tar.xz "${UPLOAD_URL}"
   artifacts:
     paths:
       - python-*.tar.xz
@@ -21,3 +28,4 @@ build:37:
   extends: .build
   variables:
     MATCH: ">=3.7.0,<3.8"
+
