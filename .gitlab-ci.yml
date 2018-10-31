@@ -3,7 +3,6 @@ stages: [build, deploy]
 .build:
   stage: build
   variables:
-    CC: gcc-7
     PGO_ENABLED: 1
   before_script:
     - eval $(ssh-agent -s)
@@ -11,6 +10,10 @@ stages: [build, deploy]
     - SSH_PRIVATE_KEY=""
     - mkdir -p ~/.ssh
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 40
+    - update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 40
+    - update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-7 40
+    - update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-7 40
   script:
     - VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${MATCH}" -quiet)
     - bin/openssl.sh

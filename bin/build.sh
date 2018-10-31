@@ -99,8 +99,8 @@ echo "Build archive"
 glibc_version=$(dpkg -s libc6|grep Version|awk '{print $2}'|cut -f1 -d-)
 libressl_version=$(/usr/local/ssl/bin/openssl version -v|awk '{print $2}')
 if [ "$PGO_ENABLED" = "1" ]; then
-    OPT=pgo-
+    OPT="pgo-"
 else
     OPT=""
 fi
-tar -cJf python-${OPT}${VERSION}-linux-$(uname -m)-glibc-${glibc_version}-libressl-${libressl_version}.tar.xz python-${VERSION}/
+tar -cJf python-${VERSION}-linux_$(uname -m)-${OPT}libressl_${libressl_version}-glibc_${glibc_version}.tar.xz python-${VERSION}/
