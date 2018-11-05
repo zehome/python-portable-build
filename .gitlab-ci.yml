@@ -5,9 +5,8 @@ stages: [build, deploy]
   variables:
     PGO_ENABLED: 1
   before_script:
-    - eval $(ssh-agent -s)
-    - ssh-add <(echo "$SSH_PRIVATE_KEY")
-    - SSH_PRIVATE_KEY=""
+    - >
+      [ ! -z "$SSH_PRIVATE_KEY" ] && eval $(ssh-agent -s) && ssh-add <(echo "$SSH_PRIVATE_KEY") && SSH_PRIVATE_KEY=""
     - mkdir -p ~/.ssh
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 40
@@ -31,4 +30,3 @@ build:37:
   extends: .build
   variables:
     MATCH: ">=3.7.0,<3.8"
-
