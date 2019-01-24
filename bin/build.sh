@@ -39,7 +39,7 @@ else
     md5sum --quiet -c Python-${VERSION}.md5sum
 fi
 export PKG_CONFIG_PATH=/usr/local/ssl/lib/pkgconfig:$PKG_CONFIG_PATH
-export LD_LIBRARY_PATH=/usr/local/ssl/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/ssl/lib:$ROOT/python-${VERSION}/lib:$LD_LIBRARY_PATH
 tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
@@ -62,7 +62,7 @@ echo "Create python and python3 link"
 echo "Copy system libraries"
 syslibs=$(find $ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload -name '*.so*' | \
     xargs ldd | grep '=>' | \
-    grep -Ev 'libc\.|libm|libdl|libutil|libpthread|libnsl|linux-vdso' | \
+    grep -Ev 'libc\.|libm|libdl|libutil|libpthread|libpython|libnsl|linux-vdso' | \
     awk '{print $3'}|sort -u)
 for lib in ${syslibs}; do
     cp -v ${lib} $ROOT/python-${VERSION}/lib
