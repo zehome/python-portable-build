@@ -9,7 +9,7 @@ set -e
 if [ ! -z "$1" ]; then
     VERSION=$1
 else
-    [ -z "$VERSION" ] && VERSION=3.6.6
+    [ -z "$VERSION" ] && VERSION=3.7.2
 fi
 VERSION_MAJOR=$(echo $VERSION | cut -f1,2 -d.)
 VERSION_MINOR=$(echo $VERSION | cut -f3 -d.)
@@ -44,9 +44,9 @@ tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
     if [ "$PGO_ENABLED" = "1" ]; then
-        ./configure --enable-optimizations --with-lto --prefix $ROOT/python-${VERSION}/
+        ./configure --enable-optimizations --with-lto --enable-shared --prefix $ROOT/python-${VERSION}/
     else
-        ./configure --prefix $ROOT/python-${VERSION}/
+        ./configure --enable-shared --prefix $ROOT/python-${VERSION}/
     fi
     make -j $CPUS
     make altinstall
