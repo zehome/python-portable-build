@@ -67,7 +67,7 @@ syslibs=$(find $ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload -n
 for lib in ${syslibs}; do
     cp -v ${lib} $ROOT/python-${VERSION}/lib
 done
-strip $ROOT/python-${VERSION}/lib/*.so*
+find "$ROOT/python-${VERSION}/lib/" -name '*.so*' -type f -perm -u=w | xargs strip
 
 echo "Patchelf (set rpath to $ORIGIN/../lib)"
 patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}
@@ -83,9 +83,6 @@ for d in tkinter sqlite3/test idlelib test; do
     rm -rf $ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/${d}
 done
 
-echo "Remove __pycache__"
-find $ROOT/python-${VERSION} -name __pycache__ -type d | xargs rm -rf
-
 echo "Update PIP and install virtualenv"
 python-${VERSION}/bin/python -m pip install -U pip
 
@@ -94,6 +91,27 @@ for f in $(grep -rl '^#!'"$ROOT"'/python-'"${VERSION}"'/bin/python' $ROOT/python
     sed -i 's,^#!'"$ROOT"'/python-'"$VERSION"'/bin/python.*,#!/usr/bin/perl -e$_=$ARGV[0];exec(s/\\w+$/python/r\,$_\,@ARGV[1..$#ARGV]),' $f
     echo "[+] patched $f"
 done
+
+echo "Remove __pycache__"
+find $ROOT/python-${VERSION} -name __pycache__ -type d | xargs rm -rf
+
+echo "Remove lib/pkgconfig && lib/config-*"
+rm -rf "$ROOT/python-${VERSION}/lib/pkgconfig" "$ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/config-${VERSION_MAJOR}*"
+
+echo "Patch sysconfig module for relocation"
+sysconfig_module_name=$($ROOT/python-${VERSION}/bin/python -c "import sys; print('_sysconfigdata_{0}_{1}_{2}.py'.format(sys.abiflags, sys.platform, getattr(sys.implementation, '_multiarch', '')))")
+cat >>$ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/${sysconfig_module_name} <<EOF
+# python-portable patch: change LIBDIRS & such at runtime
+import sys
+import os
+
+_build_time_vars = build_time_vars
+prefix = _build_time_vars["prefix"]
+runtimeprefix = os.path.abspath(
+    os.path.join(os.path.dirname(sys.executable), ".."))
+_build_time_vars = _build_time_vars
+build_time_vars = {k: v.replace(prefix, runtimeprefix) if isinstance(v, str) else v for k, v in _build_time_vars.items()}
+EOF
 
 echo "Build archive"
 glibc_version=$(dpkg -s libc6|grep Version|awk '{print $2}'|cut -f1 -d-)
