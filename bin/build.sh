@@ -44,9 +44,9 @@ tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
     if [ "$PGO_ENABLED" = "1" ]; then
-        ./configure --enable-optimizations --with-lto --enable-shared --prefix $ROOT/python-${VERSION}/
+        ./configure --disable-static --enable-optimizations --with-lto --enable-shared --prefix $ROOT/python-${VERSION}/
     else
-        ./configure --enable-shared --prefix $ROOT/python-${VERSION}/
+        ./configure --disable-static --enable-shared --prefix $ROOT/python-${VERSION}/
     fi
     make -j $CPUS
     make altinstall
