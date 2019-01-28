@@ -108,7 +108,7 @@ import os
 _build_time_vars = build_time_vars
 prefix = _build_time_vars["prefix"]
 runtimeprefix = os.path.abspath(
-    os.path.join(os.path.dirname(sys.executable), ".."))
+    os.path.join(os.path.dirname(os.path.realpath(sys.executable)), ".."))
 _build_time_vars = _build_time_vars
 build_time_vars = {k: v.replace(prefix, runtimeprefix) if isinstance(v, str) else v for k, v in _build_time_vars.items()}
 EOF
