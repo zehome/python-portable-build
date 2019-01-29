@@ -17,7 +17,7 @@ stages: [build, deploy]
     - VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${MATCH}" -quiet)
     - bin/openssl.sh
     - bin/build.sh "${VERSION}"
-    - scp python-*.tar.xz "${UPLOAD_URL}"
+    - [ ! -z "$UPLOAD_URL" ] && scp python-*.tar.xz "${UPLOAD_URL}"
   artifacts:
     paths:
       - python-*.tar.xz
