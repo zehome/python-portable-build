@@ -7,12 +7,13 @@ set -e
 [ -z "$PGO_ENABLED" ] && PGO_ENABLED=1
 
 if [ ! -z "$1" ]; then
-    # Python beta versions does not follow git tag
-    # git tag is 3.8.0-b1 but release is 3.8.0b1
+    # githubchecker fails to recognize 3.8.0b1
+    # as a version, it's transformed to 3.8.0-b1
     VERSION=$(echo $1 | sed -e 's/-//')
 else
     [ -z "$VERSION" ] && VERSION=3.7.2
 fi
+DIRVERSION=$(echo $VERSION | grep -o '[0-9]\.[0-9]\.[0-9]')
 VERSION_MAJOR=$(echo $VERSION | cut -f1,2 -d.)
 VERSION_MINOR=$(echo $VERSION | cut -f3 -d.)
 [ -z "$VERSION_MD5SUM" ] && PYTHON_MD5SUM=""
@@ -33,7 +34,7 @@ if [ ! -d patchelf ]; then
 fi
 
 echo "Build python ${VERSION}"
-fetch_source Python-${VERSION}.tar.xz https://www.python.org/ftp/python/${VERSION}
+fetch_source Python-${VERSION}.tar.xz https://www.python.org/ftp/python/${DIRVERSION}
 if [ -z "$PYTHON_MD5SUM" ]; then
     echo "Bypass hash check"
 else
