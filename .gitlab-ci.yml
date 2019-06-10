@@ -22,11 +22,12 @@ stages: [build, deploy]
     paths:
       - python-*.tar.xz
 
-build:36:
-  extends: .build
-  variables:
-    MATCH: ">=3.6.0,<3.7"
 build:37:
   extends: .build
   variables:
     MATCH: ">=3.7.0,<3.8"
+build:38b:
+  extends: .build
+  variables:
+    MATCH: ">=3.8.0b"
+
