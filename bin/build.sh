@@ -47,20 +47,19 @@ tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
     if [ "$PGO_ENABLED" = "1" ]; then
-        ./configure --disable-static --enable-optimizations --with-lto --enable-shared --prefix $ROOT/python-${VERSION}/
+        ./configure --enable-optimizations --with-lto --enable-shared --prefix $ROOT/python-${VERSION}/
     else
-        ./configure --disable-static --enable-shared --prefix $ROOT/python-${VERSION}/
+        ./configure --enable-shared --prefix $ROOT/python-${VERSION}/
     fi
     make -j $CPUS
     make altinstall
 )
 
 echo "Create python and python3 link"
-(
-    cd $ROOT/python-${VERSION}/bin
-    ln -s python${VERSION_MAJOR} python
-    ln -s python${VERSION_MAJOR} python3
-)
+pushd $ROOT/python-${VERSION}/bin
+[ ! -f python ] && ln -s python${VERSION_MAJOR} python
+[ ! -f python3 ] && ln -s python${VERSION_MAJOR} python3
+popd
 
 echo "Copy system libraries"
 syslibs=$(find $ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload -name '*.so*' | \
@@ -74,7 +73,9 @@ find "$ROOT/python-${VERSION}/lib/" -name '*.so*' -type f -perm -u=w | xargs str
 
 echo "Patchelf (set rpath to $ORIGIN/../lib)"
 patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}
-patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}m
+if [ -f python-${VERSION}/bin/python${VERSION_MAJOR}m ]; then
+    patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}m
+fi
 
 echo "Patchelf (dynlib)"
 for lib in python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload/*.so; do
