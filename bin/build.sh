@@ -7,7 +7,9 @@ set -e
 [ -z "$PGO_ENABLED" ] && PGO_ENABLED=1
 
 if [ ! -z "$1" ]; then
-    VERSION=$1
+    # Python beta versions does not follow git tag
+    # git tag is 3.8.0-b1 but release is 3.8.0b1
+    VERSION=$(echo $1 | sed -e 's/-//')
 else
     [ -z "$VERSION" ] && VERSION=3.7.2
 fi
