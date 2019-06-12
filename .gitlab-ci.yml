@@ -9,10 +9,10 @@ stages: [build, deploy]
       [ ! -z "$SSH_PRIVATE_KEY" ] && eval $(ssh-agent -s) && ssh-add <(echo "$SSH_PRIVATE_KEY") && SSH_PRIVATE_KEY=""
     - mkdir -p ~/.ssh
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-    - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 40
-    - update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 40
-    - update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-7 40
-    - update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-7 40
+    - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 40
+    - update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 40
+    - update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-9 40
+    - update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-9 40
   script:
     - VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${MATCH}" -quiet)
     - bin/openssl.sh
