@@ -30,4 +30,9 @@ build:38b:
   extends: .build
   variables:
     MATCH: ">=3.8.0b"
+build:38b_withoutpgo:
+  extends: .build
+  variables:
+    MATCH: ">=3.8.0b"
+    PGO_ENABLE: 0
 
