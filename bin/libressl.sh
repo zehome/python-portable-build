@@ -3,6 +3,7 @@
 set -e
 
 ROOT=$(dirname $0)
+ROOT=$(realpath $ROOT)
 
 . $ROOT/common.sh
 
@@ -16,7 +17,7 @@ fetch_source $LIBRESSL_ROOT.tar.gz $LIBRESSL_DOWNLOAD_URL
 tar -xzf $LIBRESSL_ROOT.tar.gz
 (
     cd $LIBRESSL_ROOT
-    ./configure --enable-shared  CFLAGS=-fPIC --prefix=/usr/local/ssl
+    ./configure --enable-shared  CFLAGS=-fPIC --prefix=$ROOT/openssl
     make -j $CPUS
     make install
 )

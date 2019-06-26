@@ -19,6 +19,7 @@ VERSION_MINOR=$(echo $VERSION | cut -f3 -d.)
 [ -z "$VERSION_MD5SUM" ] && PYTHON_MD5SUM=""
 
 ROOT=$(pwd)
+ROOT=$(realpath $ROOT)
 
 # Build patchelf from git master
 # fixes bug increasing size of binary by 20 MiB
@@ -41,15 +42,20 @@ else
     echo "$PYTHON_MD5SUM *Python-${VERSION}.tar.xz" > Python-${VERSION}.md5sum
     md5sum --quiet -c Python-${VERSION}.md5sum
 fi
-export PKG_CONFIG_PATH=/usr/local/ssl/lib/pkgconfig:$PKG_CONFIG_PATH
-export LD_LIBRARY_PATH=/usr/local/ssl/lib:$ROOT/python-${VERSION}/lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=$ROOT/openssl/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=$ROOT/openssl/lib:$ROOT/python-${VERSION}/lib:$LD_LIBRARY_PATH
 tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
+    patch -p1 < "$ROOT/0001-Add-pybench-for-pgo-optimization.patch"
+    patch -p1 < "$ROOT/0003-Use-pybench-to-optimize-python.patch"
+    export PYFLAGS="--enable-shared --with-computed-gotos --with-lto=8 --with-pymalloc  --without-cxx-main --enable-ipv6=yes --with-system-ffi --with-system-expat --with-openssl=$ROOT/openssl --prefix $ROOT/python-${VERSION}/ "
+    export CFLAGS="$CFLAGS -ffat-lto-objects -fstack-protector-strong -Wl,-O1 -Wl,-Bsymbolic-functions -O3"
+    export CXXFLAGS="$CXXFLAGS -Wl,-O1 -Wl,-Bsymbolic-functions -fno-semantic-interposition"
     if [ "$PGO_ENABLED" = "1" ]; then
-        ./configure --with-computed-gotos --enable-optimizations --with-lto --enable-shared --prefix $ROOT/python-${VERSION}/
+        ./configure $PYFLAGS --enable-optimizations
     else
-        ./configure --with-computed-gotos --enable-shared --prefix $ROOT/python-${VERSION}/
+        ./configure $PYFLAGS
     fi
     make -j $CPUS
     make altinstall
@@ -118,11 +124,11 @@ build_time_vars = {k: v.replace(prefix, runtimeprefix) if isinstance(v, str) els
 EOF
 
 echo "Build archive"
-glibc_version=$(dpkg -s libc6|grep Version|awk '{print $2}'|cut -f1 -d-)
-libressl_version=$(/usr/local/ssl/bin/openssl version -v|awk '{print $2}')
+glibc_version=$(dpkg -s libc6:amd64|grep Version|awk '{print $2}'|cut -f1 -d-)
+libssl_version=$($ROOT/openssl/bin/openssl version -v|awk '{print $2}')
 if [ "$PGO_ENABLED" = "1" ]; then
     OPT="pgo-"
 else
     OPT=""
 fi
-tar -cJf python-${VERSION}-linux_$(uname -m)-${OPT}libressl_${libressl_version}-glibc_${glibc_version}.tar.xz python-${VERSION}/
+tar -cJf python-${VERSION}-linux_$(uname -m)-${OPT}libssl_${libssl_version}-glibc_${glibc_version}.tar.xz python-${VERSION}/
