@@ -1,0 +1,28 @@
+dist: bionic
+language: generic
+services:
+  - docker
+before_install:
+  - docker pull zehome/python-portable-build
+env:
+  - PYTHON_MATCH=">=3.7,<3.8"
+  - PYTHON_MATCH=">=3.8,<3.9"
+  - PYTHON_MATCH=">=3.9,<3.10"
+script:
+  - docker run --rm -it -v "$(realpath .):/ci" -w /ci -e "MATCH=${PYTHON_MATCH}" zehome/python-portable-build make build
+  - sudo chown $(id -u):$(id -g) -R build
+jobs:
+  allow_failures:
+    - env: PYTHON_MATCH=">=3.9,<3.10"
+before_deploy:
+  - ls -al $TRAVIS_BUILD_DIR
+deploy:
+  provider: releases
+  token:
+    secure: "UHCw3ckuRDLzEiDJ0DO4zmHsfUTeg/n9h4P/7NYUV39mRxjdBu7o5meZAMkEMCw/3B/we8tfr7SZ7O+lDfGWUfSQ92rBwayHs27M/M+zcRfAaK6506Ul7qW5pvuja4PWg0cM47I35fP71VSuKONAOHB9izAswNDcDIbduF+tDSD2fUFzp/pOQIYZc9zDC1guk3/phN6mqCFQdHz9BZZcv8LGNfFdkqMHglF8QmMYUvamaCzrC/2nQFgMa4QX9gZ8AvsRH/9oyP/QMmbe3zbhGbb7Abaq1cQYD2QTxHGxZDZR5Hvr6ZMAJUY5q4WVCPt35buNBbG6Op/vrT7AqITJE8nRa/JX7L15qKikKrqzi8krRqbP/QW36bsrl7fm9AgOfL1m17WlLA9Vr+T2HsODyc+MyfyBfdJZHdJFHp4NFTO7iyCkd3YXQHrPrPm9AviwoWyVcbwO/Or3KYd9ebKBdIASRzrhJOTKmMX10zmx3sSR/kEfbiAHIfzYYrGFJS3707oHDAwta2SKzzcTmfMkdZOuKJhVs+mq1ZsQXfh+O1JqmfRDlITv6iAdpvaXiMKhga8g578NbYUaPY7UdleWKmcQmUvVUIITg8sxaARbF+HoRvePnG05b3rL6YU+GH/VaKSSI/Wwlp7i/09IgtLuJ9A227OYIH3zJhQ4c3hHVwc="
+  file:
+    - "$TRAVIS_BUILD_DIR/build/python-*.tar.xz"
+  file_glob: true
+  draft: true
+  overwrite: true
+  cleanup: false

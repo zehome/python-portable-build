@@ -18,8 +18,8 @@ VERSION_MAJOR=$(echo $VERSION | cut -f1,2 -d.)
 VERSION_MINOR=$(echo $VERSION | cut -f3 -d.)
 [ -z "$VERSION_MD5SUM" ] && PYTHON_MD5SUM=""
 
-ROOT=$(pwd)
-ROOT=$(realpath $ROOT)
+PATCHES=$(realpath $(dirname $0)/..)
+ROOT=$(realpath $(pwd))
 
 # Build patchelf from git master
 # fixes bug increasing size of binary by 20 MiB
@@ -47,10 +47,13 @@ export LD_LIBRARY_PATH=$ROOT/openssl/lib:$ROOT/python-${VERSION}/lib:$LD_LIBRARY
 tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
-    patch -p1 < "$ROOT/0001-Add-pybench-for-pgo-optimization.patch"
-    patch -p1 < "$ROOT/0003-Use-pybench-to-optimize-python.patch"
+    patch -p1 < "$PATCHES/0001-Add-pybench-for-pgo-optimization.patch"
+    if echo ${VERSION} | grep -q "3.7"; then
+        patch -p1 < "$PATCHES/0003-Use-pybench-to-optimize-python.patch"
+    fi
+    export PROFILE_TASK="Tools/pybench/pybench.py -n 20"
     export PYFLAGS="--enable-shared --with-computed-gotos --with-lto=8 --with-pymalloc  --without-cxx-main --enable-ipv6=yes --with-system-ffi --with-system-expat --with-openssl=$ROOT/openssl --prefix $ROOT/python-${VERSION}/ "
-    export CFLAGS="$CFLAGS -ffat-lto-objects -fstack-protector-strong -Wl,-O1 -Wl,-Bsymbolic-functions -O3"
+    export CFLAGS="$CFLAGS -ffat-lto-objects -fstack-protector-strong -Wl,-O1 -Wl,-Bsymbolic-functions"
     export CXXFLAGS="$CXXFLAGS -Wl,-O1 -Wl,-Bsymbolic-functions -fno-semantic-interposition"
     if [ "$PGO_ENABLED" = "1" ]; then
         ./configure $PYFLAGS --enable-optimizations

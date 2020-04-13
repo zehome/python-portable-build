@@ -1,4 +1,18 @@
+MATCH ?= >=3.8,<3.9
+VERSION ?= $(shell bin/checkupdate.sh -owner python -repository cpython -match "$(MATCH)" -quiet)
+PGO_ENABLED ?= 1
+
 all: build
 
+ci:
+	docker build -t zehome/python-portable-build .
+
+clean:
+	rm -rf build
+
 build:
-	bin/build.sh
+	echo "Match: $(MATCH)"
+	echo "Version: $(VERSION)"
+	([ -d build ] || mkdir build; cd build; bash -x ../bin/openssl.sh && bash -x ../bin/build.sh "${VERSION}")
+
+.PHONY: build clean ci
