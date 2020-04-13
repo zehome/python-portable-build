@@ -26,3 +26,4 @@ deploy:
   draft: true
   overwrite: true
   cleanup: false
+  skip_cleanup: true
