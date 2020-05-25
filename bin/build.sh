@@ -91,6 +91,11 @@ for lib in python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload/*.so; do
     patchelf/src/patchelf --set-rpath '$ORIGIN/../../' $lib
 done
 
+echo "Patchelf (libs)"
+for lib in python-${VERSION}/lib/*.so*; do
+    [ -f $lib ] && patchelf/src/patchelf --set-rpath '$ORIGIN' $lib
+done
+
 echo "Remove tests idle and tkinter"
 for d in tkinter sqlite3/test idlelib test; do
     rm -rf $ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/${d}
