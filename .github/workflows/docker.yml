@@ -1,10 +1,9 @@
 name: Build and publish docker build image
 on: workflow_dispatch
+runs:
+  using: docker
+  image: Dockerfile
 jobs:
-  build:
-    name: Build docker image
-    using: docker
-    image: Dockerfile
   push_to_registry:
     name: Push Docker image
     runs-on: ubuntu-latest
