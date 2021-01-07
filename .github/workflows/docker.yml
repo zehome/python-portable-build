@@ -30,6 +30,6 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: zehome/python-portable-build:latest
+          tags: ghcr.io/zehome/python-portable-build:latest
           platforms: linux/amd64
 
