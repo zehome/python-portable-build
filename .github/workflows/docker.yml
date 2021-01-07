@@ -1,21 +1,22 @@
 name: Build and publish docker build image
 on: workflow_dispatch
-runs:
-  using: docker
-  image: Dockerfile
 jobs:
-  push_to_registry:
-    name: Push Docker image
+  main:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v2
-      - name: Push to GitHub Packages
-        uses: docker/build-push-action@v1
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      -
+        name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
         with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: docker.pkg.github.com
-          repository: zehome/python-portable-build/build
-          tag_with_ref: true
+          push: true
+          tags: zehome/python-portable-build:latest
+          platforms: linux/amd64
 
