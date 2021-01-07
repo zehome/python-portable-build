@@ -2,8 +2,8 @@ name: Build and publish docker build image
 jobs:
   build:
     name: Build docker image
-	using: docker
-	image: Dockerfile
+    using: docker
+    image: Dockerfile
   push_to_registry:
     name: Push Docker image
     runs-on: ubuntu-latest
