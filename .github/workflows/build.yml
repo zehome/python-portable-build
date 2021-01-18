@@ -14,9 +14,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PAT }}
-      - docker pull ghcr.io/zehome/python-portable-build:latest
+      - run: docker pull ghcr.io/zehome/python-portable-build:latest
       - uses: actions/checkout@v2
-      - docker run --rm -v "$(realpath .):/ci" -w /ci -e "MATCH=${PYTHON_MATCH}" ghcr.io/zehome/python-portable-build make build
+      - run: docker run --rm -v "$(realpath .):/ci" -w /ci -e "MATCH=${PYTHON_MATCH}" ghcr.io/zehome/python-portable-build make build
 
       - uses: actions/upload-artifact@v2
         with:
