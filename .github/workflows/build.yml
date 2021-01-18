@@ -1,9 +1,5 @@
 name: build
-
-on:
-  push:
-    branches: [ $default-branch ]
-
+on: workflow_dispatch
 jobs:
   main:
     strategy:
