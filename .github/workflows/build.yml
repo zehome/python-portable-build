@@ -16,9 +16,12 @@ jobs:
           password: ${{ secrets.PAT }}
       - run: docker pull ghcr.io/zehome/python-portable-build:latest
       - uses: actions/checkout@v2
+      - env:
+        PYTHON_MATCH: ${{ matrix.PYTHON_MATCH }}
       - run: docker run --rm -v "$(realpath .):/ci" -w /ci -e "MATCH=${PYTHON_MATCH}" ghcr.io/zehome/python-portable-build make build
 
       - uses: actions/upload-artifact@v2
         with:
-          name: python-portable
+          if-no-files-found: error
+          name: python-portable-${{matrix.PYTHON_MATCH}}
           path: build/python-*.tar.xz
