@@ -4,7 +4,7 @@ jobs:
   main:
     strategy:
       matrix:
-        PYTHON_MATCH: ["3.8,<3.9", ">=3.9,<3.10"]
+        PYTHON_MATCH: [">=3.8,<3.9", ">=3.9,<3.10"]
     runs-on: ubuntu-latest
     steps:
       -
