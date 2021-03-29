@@ -4,7 +4,7 @@ jobs:
   main:
     strategy:
       matrix:
-        PYTHON_MATCH: [">=3.7,<3.8", "3.8,<3.9", ">=3.9,<3.10"]
+        PYTHON_MATCH: ["3.8,<3.9", ">=3.9,<3.10"]
     runs-on: ubuntu-latest
     steps:
       -
@@ -16,11 +16,14 @@ jobs:
           password: ${{ secrets.PAT }}
       - run: docker pull ghcr.io/zehome/python-portable-build:latest
       - uses: actions/checkout@v2
+      - run: echo PYTHON_VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${PYTHON_MATCH}" -quiet) >> $GITHUB_ENV
+        env:
+          PYTHON_MATCH: ${{ matrix.PYTHON_MATCH }}
       - run: docker run --rm -v "$(realpath .):/ci" -w /ci -e "MATCH=${PYTHON_MATCH}" ghcr.io/zehome/python-portable-build make build
         env:
           PYTHON_MATCH: ${{ matrix.PYTHON_MATCH }}
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
-          name: python-portable-${{matrix.PYTHON_MATCH}}
+          name: python-portable-${{PYTHON_VERSION}}
           path: build/python-*.tar.xz
