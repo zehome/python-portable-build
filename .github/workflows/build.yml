@@ -25,5 +25,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
-          name: python-portable-${{PYTHON_VERSION}}
+          name: python-portable-${PYTHON_VERSION}
           path: build/python-*.tar.xz
