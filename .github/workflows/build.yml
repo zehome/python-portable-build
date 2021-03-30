@@ -3,6 +3,8 @@ on: workflow_dispatch
 jobs:
   main:
     strategy:
+      fail-fast: false
+      continue-on-error: true
       matrix:
         PYTHON_MATCH: [">=3.8,<3.9", ">=3.9,<3.10"]
     runs-on: ubuntu-latest
