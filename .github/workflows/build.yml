@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_MATCH: [">=3.9,<3.10", ">=3.10,<3.11"]
+        PYTHON_MATCH: [">=3.9,<3.10"]
     runs-on: ubuntu-latest
     steps:
       -
