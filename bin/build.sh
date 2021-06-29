@@ -76,7 +76,7 @@ syslibs=$(find $ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload -n
     grep -Ev 'libc\.|libm|libdl|libutil|libpthread|libpython|libnsl|linux-vdso' | \
     awk '{print $3'}|sort -u)
 for lib in ${syslibs}; do
-    cp -v ${lib} $ROOT/python-${VERSION}/lib
+	[ ! -f "$ROOT/python-${VERSION}/lib${lib}" ] && cp -v "${lib}" "$ROOT/python-${VERSION}/lib" || true
 done
 find "$ROOT/python-${VERSION}/lib/" -name '*.so*' -type f -perm -u=w | xargs strip
 

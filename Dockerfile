@@ -1,6 +1,8 @@
 FROM ubuntu:trusty
 MAINTAINER Laurent Coustet <ed@zehome.com>
 
+RUN mkdir /tmp && chown root:root /tmp && chmod 1777 /tmp
+
 # ubuntu extras
 RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 16126D3A3E5C1192
 
@@ -30,6 +32,7 @@ RUN echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/minimal && \
     echo 'deb http://extras.ubuntu.com/ubuntu trusty main' >>/etc/apt/sources.list && \
     echo 'deb-src http://extras.ubuntu.com/ubuntu trusty main' >>/etc/apt/sources.list && \
     export DEBIAN_FRONTEND=noninteractive; \
+    apt-get -qqy update && apt-get -y dist-upgrade && \
     apt-get -qqy update && apt-get -y install \
     apt-transport-https software-properties-common python-software-properties
 

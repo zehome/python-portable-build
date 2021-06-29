@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_MATCH: [">=3.8,<3.9", ">=3.9,<3.10"]
+        PYTHON_MATCH: [">=3.9,<3.10", ">=3.10,<3.11"]
     runs-on: ubuntu-latest
     steps:
       -
@@ -21,7 +21,7 @@ jobs:
       - run: echo PYTHON_VERSION=$(bin/checkupdate.sh -owner python -repository cpython -match "${PYTHON_MATCH}" -quiet) >> $GITHUB_ENV
         env:
           PYTHON_MATCH: ${{ matrix.PYTHON_MATCH }}
-      - run: docker run --rm -v "$(realpath .):/ci" -w /ci -e "MATCH=${PYTHON_MATCH}" ghcr.io/zehome/python-portable-build make build
+      - run: docker run --ulimit nofile=1024:2048 --rm -v "$(realpath .):/ci" -w /ci -e "MATCH=${PYTHON_MATCH}" ghcr.io/zehome/python-portable-build make build
         env:
           PYTHON_MATCH: ${{ matrix.PYTHON_MATCH }}
       - uses: actions/upload-artifact@v2
