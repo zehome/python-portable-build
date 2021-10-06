@@ -13,7 +13,7 @@ if [ ! -z "$1" ]; then
 else
     [ -z "$VERSION" ] && VERSION=3.7.2
 fi
-DIRVERSION=$(echo $VERSION | grep -o '[0-9]\.[0-9]\.[0-9]')
+DIRVERSION=$(echo $VERSION | grep -o '[0-9]+\.[0-9]+\.[0-9]+')
 VERSION_MAJOR=$(echo $VERSION | cut -f1,2 -d.)
 VERSION_MINOR=$(echo $VERSION | cut -f3 -d.)
 [ -z "$VERSION_MD5SUM" ] && PYTHON_MD5SUM=""
