@@ -10,7 +10,7 @@ fetch_source() {
     local file=$1
     local url=$2
     if [ ! -f ${file} ]; then
-        curl -fsSL -o ${file} ${url}/${file}
+        curl --insecure -fsSL -o ${file} ${url}/${file}
     fi
 }
 
