@@ -1,4 +1,4 @@
-MATCH ?= >=3.8,<3.9
+MATCH ?= >=3.10,<3.11
 VERSION ?= $(shell bin/checkupdate.sh -owner python -repository cpython -match "$(MATCH)" -quiet)
 PGO_ENABLED ?= 1
 

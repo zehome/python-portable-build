@@ -7,7 +7,7 @@ ROOT=$(realpath $(dirname $0))
 . $ROOT/common.sh
 
 #OPENSSL_VERSION=$($ROOT/checkupdate.sh -owner openssl -repository openssl -match ">=1.1.0,<1.2" -quiet)
-OPENSSL_VERSION=1.1.1k
+OPENSSL_VERSION=1.1.1o
 OPENSSL_ROOT=openssl-${OPENSSL_VERSION}
 OPENSSL_DOWNLOAD_URL="https://www.openssl.org/source" # openssl-1.1.1c.tar.gz
 
