@@ -11,7 +11,7 @@ if [ ! -z "$1" ]; then
     # as a version, it's transformed to 3.8.0-b1
     VERSION=$(echo $1 | sed -e 's/-//')
 else
-    [ -z "$VERSION" ] && VERSION=3.7.2
+    [ -z "$VERSION" ] && VERSION=3.11.0
 fi
 DIRVERSION=$(echo $VERSION | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
 VERSION_MAJOR=$(echo $VERSION | cut -f1,2 -d.)
