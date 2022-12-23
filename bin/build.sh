@@ -52,7 +52,7 @@ tar xf Python-${VERSION}.tar.xz
 #        patch -p1 < "$PATCHES/0003-Use-pybench-to-optimize-python.patch"
 #    fi
 #    export PROFILE_TASK="Tools/pybench/pybench.py -n 20"
-    export PYFLAGS="--enable-shared --with-computed-gotos --with-lto=8 --with-pymalloc  --without-cxx-main --enable-ipv6=yes --with-system-ffi --with-system-expat --with-openssl=$ROOT/openssl --prefix $ROOT/python-${VERSION}/ "
+    export PYFLAGS="--enable-shared --with-computed-gotos --with-lto=full --with-pymalloc  --without-cxx-main --enable-ipv6=yes --with-system-ffi --with-system-expat --with-openssl=$ROOT/openssl --prefix $ROOT/python-${VERSION}/ "
     export CFLAGS="$CFLAGS -ffat-lto-objects -fstack-protector-strong -Wl,-O1 -Wl,-Bsymbolic-functions"
     export CXXFLAGS="$CXXFLAGS -Wl,-O1 -Wl,-Bsymbolic-functions -fno-semantic-interposition"
     if [ "$PGO_ENABLED" = "1" ]; then
@@ -76,9 +76,11 @@ syslibs=$(find $ROOT/python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload -n
     grep -Ev 'libc\.|libm|libdl|libutil|libpthread|libpython|libnsl|linux-vdso' | \
     awk '{print $3'}|sort -u)
 for lib in ${syslibs}; do
-	[ ! -f "$ROOT/python-${VERSION}/lib${lib}" ] && cp -v "${lib}" "$ROOT/python-${VERSION}/lib" || true
+    [ ! -f "$ROOT/python-${VERSION}/lib${lib}" ] && cp -v "${lib}" "$ROOT/python-${VERSION}/lib" || true
 done
-find "$ROOT/python-${VERSION}/lib/" -name '*.so*' -type f -perm -u=w | xargs strip
+for f in $(find "$ROOT/python-${VERSION}/lib/" -name '*.so*' -type f -perm -u=w); do
+    strip $f || echo "Unable to strip $f"
+done
 
 echo "Patchelf (set rpath to $ORIGIN/../lib)"
 patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}
@@ -88,12 +90,20 @@ fi
 
 echo "Patchelf (dynlib)"
 for lib in python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload/*.so; do
+    oldmode=$(stat -c '%a' $lib)
+    chmod 644 $lib
     patchelf/src/patchelf --set-rpath '$ORIGIN/../../' $lib
+    chmod $oldmode $lib
 done
 
 echo "Patchelf (libs)"
 for lib in python-${VERSION}/lib/*.so*; do
-    [ -f $lib ] && patchelf/src/patchelf --set-rpath '$ORIGIN' $lib
+    if [ -f $lib ]; then
+        oldmode=$(stat -c '%a' $lib)
+        chmod 644 $lib
+        patchelf/src/patchelf --set-rpath '$ORIGIN' $lib
+        chmod $oldmode $lib
+    fi
 done
 
 echo "Remove tests idle and tkinter"
