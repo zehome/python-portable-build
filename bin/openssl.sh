@@ -18,7 +18,7 @@ tar -xzf $OPENSSL_ROOT.tar.gz
 (
     cd $OPENSSL_ROOT
     #./configure --enable-shared  CFLAGS=-fPIC --prefix=$ROOT/openssl
-    ./config --prefix=$BUILDROOT/openssl
+    ./config --prefix=$BUILDROOT/openssl --libdir=lib
     make -j $CPUS
     make install_sw
 )

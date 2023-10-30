@@ -26,7 +26,7 @@ ROOT=$(realpath $(pwd))
 # https://github.com/NixOS/patchelf/commit/c4deb5e9e1ce9c98a48e0d5bb37d87739b8cfee4
 if [ ! -d patchelf ]; then
 (
-    git clone https://github.com/NixOS/patchelf.git
+    git clone -b0.17.2 https://github.com/NixOS/patchelf.git
     cd patchelf
     ./bootstrap.sh
     ./configure
@@ -42,8 +42,8 @@ else
     echo "$PYTHON_MD5SUM *Python-${VERSION}.tar.xz" > Python-${VERSION}.md5sum
     md5sum --quiet -c Python-${VERSION}.md5sum
 fi
-export PKG_CONFIG_PATH=$ROOT/openssl/lib64/pkgconfig:$PKG_CONFIG_PATH
-export LD_LIBRARY_PATH=$ROOT/openssl/lib64:$ROOT/python-${VERSION}/lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=$ROOT/openssl/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=$ROOT/openssl/lib:$ROOT/python-${VERSION}/lib:$LD_LIBRARY_PATH
 tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
