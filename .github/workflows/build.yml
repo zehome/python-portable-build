@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_MATCH: [">=3.11,<3.12"]
+        PYTHON_MATCH: [">=3.12,<3.13"]
     runs-on: ubuntu-latest
     steps:
       -
