@@ -11,7 +11,7 @@ if [ ! -z "$1" ]; then
     # as a version, it's transformed to 3.8.0-b1
     VERSION=$(echo $1 | sed -e 's/-//')
 else
-    [ -z "$VERSION" ] && VERSION=3.11.0
+    [ -z "$VERSION" ] && VERSION=3.12.0
 fi
 DIRVERSION=$(echo $VERSION | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
 VERSION_MAJOR=$(echo $VERSION | cut -f1,2 -d.)
@@ -42,16 +42,11 @@ else
     echo "$PYTHON_MD5SUM *Python-${VERSION}.tar.xz" > Python-${VERSION}.md5sum
     md5sum --quiet -c Python-${VERSION}.md5sum
 fi
-export PKG_CONFIG_PATH=$ROOT/openssl/lib/pkgconfig:$PKG_CONFIG_PATH
-export LD_LIBRARY_PATH=$ROOT/openssl/lib:$ROOT/python-${VERSION}/lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=$ROOT/openssl/lib64/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=$ROOT/openssl/lib64:$ROOT/python-${VERSION}/lib:$LD_LIBRARY_PATH
 tar xf Python-${VERSION}.tar.xz
 (
     cd Python-${VERSION}
-#    patch -p1 < "$PATCHES/0001-Add-pybench-for-pgo-optimization.patch"
-#    if echo ${VERSION} | grep -q "3.7"; then
-#        patch -p1 < "$PATCHES/0003-Use-pybench-to-optimize-python.patch"
-#    fi
-#    export PROFILE_TASK="Tools/pybench/pybench.py -n 20"
     export PYFLAGS="--enable-shared --with-computed-gotos --with-lto=full --with-pymalloc  --without-cxx-main --enable-ipv6=yes --with-system-ffi --with-system-expat --with-openssl=$ROOT/openssl --prefix $ROOT/python-${VERSION}/ "
     export CFLAGS="$CFLAGS -ffat-lto-objects -fstack-protector-strong -Wl,-O1 -Wl,-Bsymbolic-functions"
     export CXXFLAGS="$CXXFLAGS -Wl,-O1 -Wl,-Bsymbolic-functions -fno-semantic-interposition"
@@ -142,7 +137,7 @@ build_time_vars = {k: v.replace(prefix, runtimeprefix) if isinstance(v, str) els
 EOF
 
 echo "Build archive"
-glibc_version=$(dpkg -s libc6:amd64|grep Version|awk '{print $2}'|cut -f1 -d-)
+glibc_version=$(ldd --version 2>&1 |grep 'ldd'|awk '{print $4}')
 libssl_version=$($ROOT/openssl/bin/openssl version -v|awk '{print $2}')
 if [ "$PGO_ENABLED" = "1" ]; then
     OPT="pgo-"

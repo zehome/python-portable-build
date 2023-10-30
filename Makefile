@@ -1,6 +1,6 @@
-MATCH ?= >=3.11,<3.12
+MATCH ?= >=3.12,<3.13
 VERSION ?= $(shell bin/checkupdate.sh -owner python -repository cpython -match "$(MATCH)" -quiet)
-PGO_ENABLED ?= 1
+PGO_ENABLED ?= 0
 
 all: build
 
