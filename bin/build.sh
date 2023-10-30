@@ -78,16 +78,16 @@ for f in $(find "$ROOT/python-${VERSION}/lib/" -name '*.so*' -type f -perm -u=w)
 done
 
 echo "Patchelf (set rpath to $ORIGIN/../lib)"
-patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}
+patchelf/src/patchelf --print-soname --print-rpath --print-needed --debug --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}
 if [ -f python-${VERSION}/bin/python${VERSION_MAJOR}m ]; then
-    patchelf/src/patchelf --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}m
+    patchelf/src/patchelf --print-soname --print-rpath --print-needed --debug --set-rpath '$ORIGIN/../lib' python-${VERSION}/bin/python${VERSION_MAJOR}m
 fi
 
 echo "Patchelf (dynlib)"
 for lib in python-${VERSION}/lib/python${VERSION_MAJOR}/lib-dynload/*.so; do
     oldmode=$(stat -c '%a' $lib)
     chmod 644 $lib
-    patchelf/src/patchelf --set-rpath '$ORIGIN/../../' $lib
+    patchelf/src/patchelf --print-soname --print-rpath --print-needed --debug --set-rpath '$ORIGIN/../../' $lib
     chmod $oldmode $lib
 done
 
@@ -96,7 +96,7 @@ for lib in python-${VERSION}/lib/*.so*; do
     if [ -f $lib ]; then
         oldmode=$(stat -c '%a' $lib)
         chmod 644 $lib
-        patchelf/src/patchelf --set-rpath '$ORIGIN' $lib
+        patchelf/src/patchelf --print-soname --print-rpath --print-needed --debug --set-rpath '$ORIGIN' $lib
         chmod $oldmode $lib
     fi
 done
